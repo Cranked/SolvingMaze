@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 
 public class Main extends Application {
-    int squadSize = 75;
+    int squadSize = 25;
     Direction direction;
     boolean backState = false;
     boolean solved = false;
@@ -23,14 +23,20 @@ public class Main extends Application {
 
     private int[][] maze =
             {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1},
+                    {1, 9, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1},
+                    {1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1},
+                    {1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1},
+                    {1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1},
+                    {1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1},
                     {1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1},
+                    {1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1},
+                    {1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1},
+                    {1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1},
                     {1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1},
                     {1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1},
-                    {1, 9, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1},
+                    {1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1},
                     {1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1},
+                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1},
                     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 
             };
@@ -120,6 +126,33 @@ public class Main extends Application {
             for (int j = tempLocation.getY(); j < maze[0].length; ) {
                 if (solved) break;
                 direction = getDirection(i, j, maze);
+                for (Location finisLocation : startAndFiniskLocations) {
+                    switch (finisLocation.getDirection()) {
+                        case FINISH -> {
+                            for (Location registerLocation : locations) {
+                                switch (registerLocation.getDirection()) {
+                                    case LEFT -> {
+                                        if (registerLocation.getY() - 1 == finisLocation.getY() && registerLocation.getX() == finisLocation.getX())
+                                            solved = true;
+                                    }
+                                    case RIGHT -> {
+                                        if (registerLocation.getY() + 1 == finisLocation.getY() && registerLocation.getX() == finisLocation.getX())
+                                            solved = true;
+                                    }
+                                    case UP -> {
+                                        if (registerLocation.getY() == finisLocation.getY() && registerLocation.getX() - 1 == finisLocation.getX())
+                                            solved = true;
+                                    }
+                                    case DOWN -> {
+                                        if (registerLocation.getY() == finisLocation.getY() && registerLocation.getX() + 1 == finisLocation.getX())
+                                            solved = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 if (direction != null) {
                     switch (direction) {
                         case LEFT -> {
@@ -148,33 +181,7 @@ public class Main extends Application {
                         }
                     }
                 } else {
-                    for (Location finisLocation : startAndFiniskLocations) {
-                        switch (finisLocation.getDirection()) {
-                            case FINISH -> {
-                                for (Location registerLocation : locations) {
-                                    switch (registerLocation.getDirection()) {
-                                        case LEFT -> {
-                                            if (registerLocation.getY() - 1 == finisLocation.getY() && registerLocation.getX() == finisLocation.getX())
-                                                solved = true;
-                                        }
-                                        case RIGHT -> {
-                                            if (registerLocation.getY() + 1 == finisLocation.getY() && registerLocation.getX() == finisLocation.getX())
-                                                solved = true;
-                                        }
-                                        case UP -> {
-                                            if (registerLocation.getY() == finisLocation.getY() && registerLocation.getX() - 1 == finisLocation.getX())
-                                                solved = true;
-                                        }
-                                        case DOWN -> {
-                                            if (registerLocation.getY() == finisLocation.getY() && registerLocation.getX() + 1 == finisLocation.getX())
-                                                solved = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+
                     if (solved) break;
                     for (Location location : locations) {
                         if (location.getX() == i && location.getY() == j) {
