@@ -10,36 +10,45 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Main extends Application {
-    int squadSize = 25;
+    int squadSize = 20;
     Direction direction;
     boolean backState = false;
     boolean solved = false;
     boolean foundStartPlaceState = false;
-    ArrayList<Location> locations = new ArrayList<>();
+    ArrayList<Location> mazeLocations = new ArrayList<>();
     ArrayList<Location> startAndFiniskLocations = new ArrayList<>();
 
-    private int[][] maze =
+    final int[][] maze =
             {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 0, 0, 1, 0, 1, 9, 0, 0, 0, 0, 1},
-                    {1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1},
+                    {1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1},
+                    {1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1},
+                    {1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1},
+                    {1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1},
+                    {1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1},
                     {1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1},
-                    {1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1},
-                    {1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1},
-                    {1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1},
+                    {1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1},
+                    {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 9, 1},
+                    {1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1},
+                    {1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1},
+                    {1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
+                    {1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
                     {1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1},
                     {1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1},
                     {1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1},
+                    {1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1},
                     {1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1},
-                    {1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1},
-                    {1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 0, 1},
+                    {1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1},
+                    {1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1},
+                    {1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
                     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 
             };
+
     /*
      * 0 - not visited node
      * 1 - wall(blocked) node
@@ -56,6 +65,7 @@ public class Main extends Application {
         Group labirent = new Group();
         for (int i = 0; i < maze.length; i++) {
             for (int j = 0; j < maze[0].length; j++) {
+                mazeLocations.add(new Location(i, j, maze[i][j]));
                 Rectangle rectangle = new Rectangle();
                 rectangle.setWidth(squadSize);
                 rectangle.setHeight(squadSize);
@@ -79,10 +89,21 @@ public class Main extends Application {
             }
         }
 
+        ArrayList<Location> pureMazeList = new ArrayList<>();
         primaryStage.setTitle("Labirent Çözme");
-        findStartAndFinishLocations(maze);
-        solveMaze(maze);
-        drawMaze(labirent, locations);
+        for (int i = 0; i < maze.length; i++) {
+            for (int j = 0; j < maze[0].length; j++) {
+                pureMazeList.add(new Location(i, j, maze[i][j]));
+            }
+        }
+        findStartAndFinishLocations(pureMazeList);
+        ArrayList<Location> startLocations = solveMaze(mazeLocations);
+
+        ArrayList<Location> reversedTempArrayList = reverseMazeArray(pureMazeList, startAndFiniskLocations);
+        findStartAndFinishLocations(reversedTempArrayList);
+        ArrayList<Location> finishLocations = solveMaze(reversedTempArrayList);
+
+        drawMaze(labirent, startLocations.size() > finishLocations.size() ? finishLocations : startLocations);
         primaryStage.setScene(new Scene(labirent, maze[0].length * squadSize, maze.length * squadSize));
         primaryStage.show();
 
@@ -94,26 +115,59 @@ public class Main extends Application {
         launch(args);
     }
 
-    public void findStartAndFinishLocations(int[][] array) {
-        for (int i = 0; i < array.length; i++) {
-            for (int j = 0; j < array[0].length; j++) {
-                switch (array[i][j]) {
-                    case 3:
-                        direction = getDirection(i, j, maze);
-                        startAndFiniskLocations.add(new Location(i, j, Direction.START));
-                        break;
-                    case 9:
-                        startAndFiniskLocations.add(new Location(i, j, Direction.FINISH));
-                        break;
-                }
-
+    public void setValue(ArrayList<Location> locations, int x, int y, int value) {
+        locations.forEach(location -> {
+            if (location.getX() == x && location.getY() == y) {
+                location.setValue(value);
+                return;
             }
+        });
+    }
+
+    public int getValue(ArrayList<Location> locations, int x, int y) {
+        for (Location location : locations) {
+            if (location.getX() == x && location.getY() == y) {
+                return location.getValue();
+            }
+        }
+        return -1;
+    }
+
+    public ArrayList<Location> reverseMazeArray(ArrayList<Location> mazeLocations, ArrayList<Location> tempStartAndFinishList) {
+        for (Location location : tempStartAndFinishList) {
+            switch (location.getDirection()) {
+                case START -> {
+                    setValue(mazeLocations, location.getX(), location.getY(), 9);
+                }
+                case FINISH -> {
+                    setValue(mazeLocations, location.getX(), location.getY(), 3);
+                }
+            }
+        }
+        return mazeLocations;
+    }
+
+
+    public void findStartAndFinishLocations(ArrayList<Location> array) {
+        startAndFiniskLocations.clear();
+        for (Location location : array) {
+            switch (location.getValue()) {
+                case 3:
+                    direction = getDirection(location.getX(), location.getY(), array);
+                    startAndFiniskLocations.add(new Location(location.getX(), location.getY(), Direction.START));
+                    break;
+                case 9:
+                    startAndFiniskLocations.add(new Location(location.getX(), location.getY(), Direction.FINISH));
+                    break;
+            }
+
+
         }
     }
 
 
-    public void solveMaze(int[][] maze) {
-        int start, finish;
+    public ArrayList<Location> solveMaze(ArrayList<Location> tempArrayList) {
+        ArrayList<Location> locations = new ArrayList<>();
         Location tempLocation = null;
         for (Location location : startAndFiniskLocations) {
             switch (location.getDirection()) {
@@ -125,30 +179,21 @@ public class Main extends Application {
         for (int i = tempLocation.getX(); i < maze.length; ) {
             for (int j = tempLocation.getY(); j < maze[0].length; ) {
                 if (solved) break;
-                direction = getDirection(i, j, maze);
+                direction = getDirection(i, j, tempArrayList);
                 for (Location finisLocation : startAndFiniskLocations) {
                     switch (finisLocation.getDirection()) {
                         case FINISH -> {
                             for (Location registerLocation : locations) {
-                                switch (registerLocation.getDirection()) {
-                                    case LEFT -> {
-                                        if (registerLocation.getY() - 1 == finisLocation.getY() && registerLocation.getX() == finisLocation.getX())
-                                            solved = true;
-                                    }
-                                    case RIGHT -> {
-                                        if (registerLocation.getY() + 1 == finisLocation.getY() && registerLocation.getX() == finisLocation.getX())
-                                            solved = true;
-                                    }
-                                    case UP -> {
-                                        if (registerLocation.getY() == finisLocation.getY() && registerLocation.getX() - 1 == finisLocation.getX())
-                                            solved = true;
-                                    }
-                                    case DOWN -> {
-                                        if (registerLocation.getY() == finisLocation.getY() && registerLocation.getX() + 1 == finisLocation.getX())
-                                            solved = true;
-                                        break;
-                                    }
-                                }
+                                if (registerLocation.getY() - 1 == finisLocation.getY() && registerLocation.getX() == finisLocation.getX())
+                                    solved = true;
+                                if (registerLocation.getY() + 1 == finisLocation.getY() && registerLocation.getX() == finisLocation.getX())
+                                    solved = true;
+                                if (registerLocation.getY() == finisLocation.getY() && registerLocation.getX() - 1 == finisLocation.getX())
+                                    solved = true;
+                                if (registerLocation.getY() == finisLocation.getY() && registerLocation.getX() + 1 == finisLocation.getX())
+                                    solved = true;
+
+
                             }
                         }
                     }
@@ -157,26 +202,26 @@ public class Main extends Application {
                     switch (direction) {
                         case LEFT -> {
                             j--;
-                            maze[i][j] = 2;
-                            locations.add(new Location(i, j, direction));
+                            setValue(tempArrayList, i, j, 2);
+                            locations.add(new Location(i, j, direction, 2));
 
                         }
                         case RIGHT -> {
                             j++;
-                            maze[i][j] = 2;
-                            locations.add(new Location(i, j, direction));
+                            setValue(tempArrayList, i, j, 2);
+                            locations.add(new Location(i, j, direction, 2));
 
                         }
                         case UP -> {
                             i--;
-                            maze[i][j] = 2;
+                            setValue(tempArrayList, i, j, 2);
 
-                            locations.add(new Location(i, j, direction));
+                            locations.add(new Location(i, j, direction, 2));
                         }
                         case DOWN -> {
                             i++;
-                            maze[i][j] = 2;
-                            locations.add(new Location(i, j, direction));
+                            setValue(tempArrayList, i, j, 2);
+                            locations.add(new Location(i, j, direction, 2));
 
                         }
                     }
@@ -184,29 +229,27 @@ public class Main extends Application {
 
                     if (solved) break;
                     for (Location location : locations) {
-                        if (location.getX() == i && location.getY() == j) {
-                            maze[i][j] = 1;
-                            switch (location.getDirection()) {
-                                case LEFT -> {
-                                    j++;
-                                }
-                                case RIGHT -> {
-                                    j--;
-                                }
-                                case DOWN -> {
-                                    i--;
-                                }
-                                case UP -> {
-                                    i++;
+                        for (Location loc : tempArrayList)
+                            if (location.getX() == i && location.getY() == j) {
+                                location.setValue(1);
+                                setValue(tempArrayList, location.getX(), location.getY(), 1);
+                                switch (location.getDirection()) {
+                                    case LEFT -> {
+                                        j++;
+                                    }
+                                    case RIGHT -> {
+                                        j--;
+                                    }
+                                    case DOWN -> {
+                                        i--;
+                                    }
+                                    case UP -> {
+                                        i++;
+                                    }
                                 }
                             }
-                        }
                     }
-                    for (int i1 = tempLocation.getX(); i1 < maze.length; i1++) {
-                        for (int j1 = tempLocation.getY(); j1 < maze[0].length; j1++) {
-                            locations.removeIf(location -> maze[location.getX()][location.getY()] == 1);
-                        }
-                    }
+                    locations.removeIf(location -> location.getValue() == 1);
                     if (locations.size() == 0)
                         j++;
                 }
@@ -218,7 +261,9 @@ public class Main extends Application {
         }
         if (solved) {
             System.out.println("Labirent Çözüldü");
+            solved = false;
         }
+        return locations;
     }
 
     public void drawMaze(Group group, ArrayList<Location> locations) {
@@ -226,28 +271,28 @@ public class Main extends Application {
             Line line = new Line();
             switch (location.getDirection()) {
                 case UP -> {
-                    line.setStartX(location.getY() * squadSize+squadSize/2);
-                    line.setStartY((location.getX()) * squadSize+squadSize);
-                    line.setEndX(location.getY() * squadSize+squadSize/2);
-                    line.setEndY(location.getX() * squadSize+squadSize/2 );
+                    line.setStartX(location.getY() * squadSize + squadSize / 2);
+                    line.setStartY((location.getX()) * squadSize + squadSize);
+                    line.setEndX(location.getY() * squadSize + squadSize / 2);
+                    line.setEndY(location.getX() * squadSize + squadSize / 2);
                 }
                 case DOWN -> {
-                    line.setStartX(location.getY() * squadSize + squadSize/2);
+                    line.setStartX(location.getY() * squadSize + squadSize / 2);
                     line.setStartY(location.getX() * squadSize);
-                    line.setEndX(location.getY() * squadSize+squadSize/2);
-                    line.setEndY(location.getX() * squadSize + squadSize/2);
+                    line.setEndX(location.getY() * squadSize + squadSize / 2);
+                    line.setEndY(location.getX() * squadSize + squadSize / 2);
                 }
                 case RIGHT -> {
-                    line.setStartX(location.getY()*squadSize);
-                    line.setStartY(location.getX()*squadSize+squadSize/2);
-                    line.setEndX(location.getY() * squadSize + squadSize/2);
-                    line.setEndY(location.getX() * squadSize+squadSize/2);
+                    line.setStartX(location.getY() * squadSize);
+                    line.setStartY(location.getX() * squadSize + squadSize / 2);
+                    line.setEndX(location.getY() * squadSize + squadSize / 2);
+                    line.setEndY(location.getX() * squadSize + squadSize / 2);
                 }
                 case LEFT -> {
-                    line.setStartX(location.getY() * squadSize+squadSize);
-                    line.setStartY((location.getX()) * squadSize+squadSize/2);
-                    line.setEndX(location.getY() * squadSize+squadSize/2);
-                    line.setEndY(location.getX() * squadSize+squadSize/2 );
+                    line.setStartX(location.getY() * squadSize + squadSize);
+                    line.setStartY((location.getX()) * squadSize + squadSize / 2);
+                    line.setEndX(location.getY() * squadSize + squadSize / 2);
+                    line.setEndY(location.getX() * squadSize + squadSize / 2);
                 }
 
             }
@@ -258,10 +303,10 @@ public class Main extends Application {
         }
     }
 
-    public Direction getDirection(int i, int j, int[][] array) {
+    public Direction getDirection(int i, int j, ArrayList<Location> array) {
         Direction direction = null;
         try {
-            if (array[i][j - 1] == 0) {
+            if (getValue(array, i, j - 1) == 0) {
                 if (direction == null)
                     direction = Direction.LEFT;
             }
@@ -269,7 +314,7 @@ public class Main extends Application {
 
         }
         try {
-            if (array[i][j + 1] == 0) {
+            if (getValue(array, i, j + 1) == 0) {
                 if (direction == null)
                     direction = Direction.RIGHT;
             }
@@ -277,7 +322,7 @@ public class Main extends Application {
 
         }
         try {
-            if (array[i - 1][j] == 0) {
+            if (getValue(array, i - 1, j) == 0) {
                 if (direction == null)
                     direction = Direction.UP;
             }
@@ -285,7 +330,7 @@ public class Main extends Application {
 
         }
         try {
-            if (array[i + 1][j] == 0) {
+            if (getValue(array, i + 1, j) == 0) {
                 if (direction == null)
                     direction = Direction.DOWN;
 

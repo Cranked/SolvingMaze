@@ -1,14 +1,28 @@
 package sample;
 
 public class Location {
-    int x;
-    int y;
+   private int x;
+    private int y;
     Direction direction;
+   private int value;
 
     public Location(int x, int y, Direction direction) {
         this.x = x;
         this.y = y;
         this.direction = direction;
+    }
+
+    public Location(int x, int y, Direction direction,int value) {
+        this.x = x;
+        this.y = y;
+        this.direction = direction;
+        this.value=value;
+    }
+
+    public Location(int x, int y, int value) {
+        this.x = x;
+        this.y = y;
+        this.value = value;
     }
 
     public Location(int x, int y) {
@@ -38,5 +52,13 @@ public class Location {
 
     public void setDirection(Direction direction) {
         this.direction = direction;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
     }
 }
