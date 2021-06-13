@@ -29,22 +29,22 @@ public class Main extends Application {
                     {1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
                     {1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1},
                     {1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1},
-                    {1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 9, 1, 1},
-                    {1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1},
-                    {1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1},
-                    {1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1},
-                    {1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
+                    {1, 1, 9, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1},
+                    {1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1},
+                    {1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1},
+                    {1, 0, 1, 0, 0, 1, 1, 1, 3, 0, 1, 0, 1},
+                    {1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1},
                     {1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
                     {1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1},
-                    {1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
+                    {1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 30, 1},
                     {1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1},
                     {1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1},
                     {1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1},
-                    {1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1},
-                    {1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1},
+                    {1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+                    {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1},
                     {1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1},
                     {1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1},
-                    {1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                    {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
                     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 
             };
@@ -235,26 +235,25 @@ public class Main extends Application {
                     }
                 } else {
 
-                    if (solved) break;
                     for (Location location : locations) {
-                            if (location.getX() == i && location.getY() == j) {
-                                location.setValue(1);
-                                setValue(tempArrayList, location.getX(), location.getY(), 1);
-                                switch (location.getDirection()) {
-                                    case LEFT -> {
-                                        j++;
-                                    }
-                                    case RIGHT -> {
-                                        j--;
-                                    }
-                                    case DOWN -> {
-                                        i--;
-                                    }
-                                    case UP -> {
-                                        i++;
-                                    }
+                        if (location.getX() == i && location.getY() == j) {
+                            location.setValue(1);
+                            setValue(tempArrayList, location.getX(), location.getY(), 1);
+                            switch (location.getDirection()) {
+                                case LEFT -> {
+                                    j++;
+                                }
+                                case RIGHT -> {
+                                    j--;
+                                }
+                                case DOWN -> {
+                                    i--;
+                                }
+                                case UP -> {
+                                    i++;
                                 }
                             }
+                        }
                     }
                     locations.removeIf(location -> location.getValue() == 1);
                     if (locations.size() == 0)
@@ -312,9 +311,12 @@ public class Main extends Application {
 
     public Direction getDirection(int i, int j, ArrayList<Location> array) {
         Direction direction = null;
+        ArrayList<Location> tempLocations = new ArrayList<>();
+        int mValue;
         boolean leftPriority = false, rightPriority = false, upPriority = false, downPriority = false;
         try {
-            if (getValue(array, i, j - 1) == 0) {
+            mValue = getValue(array, i, j - 1);
+            if (mValue == 0) {
                 for (Location finishLocation : startAndFiniskLocations) {
                     switch (finishLocation.getDirection()) {
                         case FINISH -> {
@@ -324,14 +326,20 @@ public class Main extends Application {
                         }
                     }
                 }
+
                 if (leftPriority)
                     direction = Direction.LEFT;
+            }
+            if (mValue == 9) solved = true;
+            if (mValue == 0 || mValue == 9) {
+                tempLocations.add(new Location(i, j, Direction.LEFT));
             }
         } catch (Exception e) {
 
         }
         try {
-            if (getValue(array, i, j + 1) == 0) {
+            mValue = getValue(array, i, j + 1);
+            if (mValue == 0) {
                 for (Location finishLocation : startAndFiniskLocations) {
                     switch (finishLocation.getDirection()) {
                         case FINISH -> {
@@ -344,11 +352,16 @@ public class Main extends Application {
                 if (rightPriority)
                     direction = Direction.RIGHT;
             }
+            if (mValue == 9) solved = true;
+            if (mValue == 0 || mValue == 9) {
+                tempLocations.add(new Location(i, j, Direction.RIGHT));
+            }
         } catch (Exception e) {
 
         }
         try {
-            if (getValue(array, i - 1, j) == 0) {
+            mValue = getValue(array, i - 1, j);
+            if (mValue == 0) {
                 for (Location finishLocation : startAndFiniskLocations) {
                     switch (finishLocation.getDirection()) {
                         case FINISH -> {
@@ -361,11 +374,16 @@ public class Main extends Application {
                 if (upPriority)
                     direction = Direction.UP;
             }
+            if (mValue == 9) solved = true;
+            if (mValue == 0 || mValue == 9) {
+                tempLocations.add(new Location(i, j, Direction.UP));
+            }
         } catch (Exception e) {
 
         }
         try {
-            if (getValue(array, i + 1, j) == 0) {
+            mValue = getValue(array, i + 1, j);
+            if (mValue == 0) {
                 for (Location finishLocation : startAndFiniskLocations) {
                     switch (finishLocation.getDirection()) {
                         case FINISH -> {
@@ -377,10 +395,18 @@ public class Main extends Application {
                 }
                 if (downPriority)
                     direction = Direction.DOWN;
-
+            }
+            if (mValue == 9) solved = true;
+            if (mValue == 0 || mValue == 9) {
+                tempLocations.add(new Location(i, j, Direction.DOWN));
             }
         } catch (Exception e) {
 
+        }
+        if (direction == null) {
+            for (Location location : tempLocations) {
+                direction = location.getDirection();
+            }
         }
 
         return direction;
