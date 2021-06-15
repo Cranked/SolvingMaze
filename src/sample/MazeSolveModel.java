@@ -12,8 +12,6 @@ public class MazeSolveModel {
     boolean solved = false;
     int squadSize = 20;
     Direction direction;
-    boolean backState = false;
-    boolean foundStartPlaceState = false;
 
     ArrayList<Location> finalLocations = new ArrayList<>();
     ArrayList<Location> mazeLocations = new ArrayList<>();
