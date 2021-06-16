@@ -16,6 +16,7 @@ public class MazeSolveModel {
     ArrayList<Location> finalLocations = new ArrayList<>();
     ArrayList<Location> mazeLocations = new ArrayList<>();
     ArrayList<Location> startAndFiniskLocations = new ArrayList<>();
+
     public void drawMaze(Group group, int[][] array, int size) {
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[0].length; j++) {
@@ -59,6 +60,7 @@ public class MazeSolveModel {
             }
         });
     }
+
     public ArrayList<Location> reverseMazeArray(ArrayList<Location> mazeLocations, ArrayList<Location> tempStartAndFinishList) {
         for (Location location : tempStartAndFinishList) {
             switch (location.getDirection()) {
@@ -72,7 +74,8 @@ public class MazeSolveModel {
         }
         return mazeLocations;
     }
-    public ArrayList<Location> solveMaze(ArrayList<Location> tempArrayList,int [][] mazeArray) {
+
+    public ArrayList<Location> solveMaze(ArrayList<Location> tempArrayList, int[][] mazeArray) {
         ArrayList<Location> locations = new ArrayList<>();
         Location tempLocation = null;
         for (Location location : startAndFiniskLocations) {
@@ -173,6 +176,7 @@ public class MazeSolveModel {
         }
         return locations;
     }
+
     public int getValue(ArrayList<Location> locations, int x, int y) {
         for (Location location : locations) {
             if (location.getX() == x && location.getY() == y) {
@@ -181,8 +185,6 @@ public class MazeSolveModel {
         }
         return -1;
     }
-
-
 
 
     public void findStartAndFinishLocations(ArrayList<Location> array) {
@@ -201,6 +203,7 @@ public class MazeSolveModel {
 
         }
     }
+
     public void drawPathInMaze(Group group, ArrayList<Location> locations) {
         for (Location location : locations) {
             Line line = new Line();
@@ -257,10 +260,13 @@ public class MazeSolveModel {
                 }
                 tempLocations.add(new Location(i, j, Direction.LEFT));
 
-                if (leftPriority && !rightPriority && !downPriority && !upPriority)
+                if (leftPriority)
                     direction = Direction.LEFT;
             }
             if (mValue == 9) solved = true;
+            if (mValue == 3) {
+                direction = getDirection(i, j - 1, array);
+            }
 
         } catch (Exception e) {
 
@@ -279,10 +285,13 @@ public class MazeSolveModel {
                 }
                 tempLocations.add(new Location(i, j, Direction.RIGHT));
 
-                if (rightPriority && !leftPriority && !upPriority && !downPriority)
+                if (rightPriority)
                     direction = Direction.RIGHT;
             }
             if (mValue == 9) solved = true;
+            if (mValue == 3) {
+                direction = getDirection(i, j + 1, array);
+            }
         } catch (Exception e) {
 
         }
@@ -300,10 +309,13 @@ public class MazeSolveModel {
                 }
                 tempLocations.add(new Location(i, j, Direction.UP));
 
-                if (upPriority && !leftPriority && !rightPriority && !downPriority)
+                if (upPriority)
                     direction = Direction.UP;
             }
             if (mValue == 9) solved = true;
+            if (mValue == 3) {
+                direction = getDirection(i - 1, j, array);
+            }
 
         } catch (Exception e) {
 
@@ -322,11 +334,13 @@ public class MazeSolveModel {
                 }
                 tempLocations.add(new Location(i, j, Direction.DOWN));
 
-                if (downPriority && !leftPriority && !rightPriority && !upPriority)
+                if (downPriority)
                     direction = Direction.DOWN;
             }
             if (mValue == 9) solved = true;
-
+            if (mValue == 3) {
+                direction = getDirection(i + 1, j, array);
+            }
         } catch (Exception e) {
 
         }
@@ -335,8 +349,51 @@ public class MazeSolveModel {
                 direction = location.getDirection();
             }
         }
+        if (upPriority && (rightPriority || downPriority)) {
+            for (Location finishLocation : startAndFiniskLocations) {
+                switch (finishLocation.getDirection()) {
+                    case FINISH -> {
+                        if (-1 * (finishLocation.getX() - i) > finishLocation.getY() - j) {
+                            direction = Direction.UP;
+                        }
+                    }
+                }
+
+            }
+        } else if (downPriority && (rightPriority || upPriority)) {
+            for (Location finishLocation : startAndFiniskLocations) {
+                switch (finishLocation.getDirection()) {
+                    case FINISH -> {
+                        if (finishLocation.getX() - i > finishLocation.getY() - j) {
+                            direction = Direction.DOWN;
+                        }
+                    }
+                }
+            }
+        } else if (rightPriority && (upPriority || downPriority)) {
+            for (Location finishLocation : startAndFiniskLocations) {
+                switch (finishLocation.getDirection()) {
+                    case FINISH -> {
+                        if (finishLocation.getY() - j > -1 * (finishLocation.getX() - i)) {
+                            direction = Direction.RIGHT;
+                        }
+                    }
+                }
+            }
+        } else if (leftPriority && (upPriority || downPriority)) {
+            for (Location finishLocation : startAndFiniskLocations) {
+                switch (finishLocation.getDirection()) {
+                    case FINISH -> {
+                        if (finishLocation.getY() - j > (finishLocation.getX() - i)) {
+                            direction = Direction.LEFT;
+                        }
+                    }
+                }
+            }
+        }
         return direction;
     }
+
     public void startAnimation(Group group, ArrayList<Location> locations, int circleSize) {
         var path = new Path();
         PathTransition pathTransition = new PathTransition();
